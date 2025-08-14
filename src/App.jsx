@@ -6,13 +6,13 @@ export default function App() {
   const [input, setInput] = useState("Apple\nBanana\nCherry\nDate\nElderberry");
   const [shuffled, setShuffled] = useState([]);
   const [runId, setRunId] = useState(0);
-  const [highlightIndex, setHighlightIndex] = useState(-1);
+  const [highlighted, setHighlighted] = useState([]);
   const [showInput, setShowInput] = useState(true);
 
   const STAGGER = 1.5;
   const ANIM_DURATION = 1;
-  const HIGHLIGHT_FADE_DELAY = 1;
-
+  const HIGHLIGHT_OVERLAP = 0.4; // seconds of overlap
+  
   const shuffleArray = (arr) => {
     const newArr = [...arr];
     for (let i = newArr.length - 1; i > 0; i--) {
@@ -30,7 +30,7 @@ export default function App() {
       .filter(Boolean);
 
     setRunId((id) => id + 1);
-    setHighlightIndex(-1);
+    setHighlighted([]);
     setShuffled([]);
 
     const shuffledItems = shuffleArray(items);
@@ -38,14 +38,13 @@ export default function App() {
 
     shuffledItems.forEach((_, i) => {
       setTimeout(() => {
-        setHighlightIndex(i);
+        setHighlighted((prev) => [...prev, i]);
+        // Remove this index after overlap time
+        setTimeout(() => {
+          setHighlighted((prev) => prev.filter((idx) => idx !== i));
+        }, (STAGGER - HIGHLIGHT_OVERLAP) * 1000);
       }, i * STAGGER * 1000);
     });
-
-    const lastIndex = shuffledItems.length - 1;
-    setTimeout(() => {
-      setHighlightIndex(-1);
-    }, (lastIndex * STAGGER + HIGHLIGHT_FADE_DELAY) * 1000);
   };
 
   const copyResult = async () => {
@@ -142,7 +141,7 @@ export default function App() {
       {/* Shuffled List */}
       <ul style={{ listStyle: "none", padding: 0 }}>
         {shuffled.map((item, i) => {
-          const isHighlighted = highlightIndex === i;
+          const isHighlighted = highlighted.includes(i);
           return (
             <motion.li
               key={`${item}-${i}-${runId}`}
