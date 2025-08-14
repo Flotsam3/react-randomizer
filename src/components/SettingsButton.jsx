@@ -9,6 +9,8 @@ export default function SettingsButton({
   setAnimDuration,
   animationsEnabled,
   setAnimationsEnabled,
+  countdownEnabled,
+  setCountdownEnabled,
 }) {
   const [open, setOpen] = useState(false);
 
@@ -26,6 +28,7 @@ export default function SettingsButton({
     setStagger(DEFAULT_STAGGER);
     setAnimDuration(DEFAULT_ANIM_DURATION);
     setAnimationsEnabled(true);
+    setCountdownEnabled(true);
   };
 
   return (
@@ -70,12 +73,7 @@ export default function SettingsButton({
             <strong style={{ fontSize: 14 }}>Einstellungen</strong>
             <button
               onClick={() => setOpen(false)}
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: 4,
-              }}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
               title="Schließen"
             >
               <X size={16} />
@@ -115,6 +113,16 @@ export default function SettingsButton({
                   border: "1px solid #d1d5db",
                 }}
               />
+            </label>
+
+            <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+              <input
+                type="checkbox"
+                checked={!countdownEnabled}
+                onChange={(e) => setCountdownEnabled(!e.target.checked)}
+                disabled={!animationsEnabled}
+              />
+              Countdown deaktivieren
             </label>
 
             <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
