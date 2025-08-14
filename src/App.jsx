@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { motion } from "motion/react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function App() {
   const [input, setInput] = useState("Apple\nBanana\nCherry\nDate\nElderberry");
   const [shuffled, setShuffled] = useState([]);
   const [runId, setRunId] = useState(0);
   const [highlightIndex, setHighlightIndex] = useState(-1);
+  const [showInput, setShowInput] = useState(true);
 
-  const STAGGER = 1.5; // seconds between items
-  const ANIM_DURATION = 1; // seconds per animation
-  const HIGHLIGHT_FADE_DELAY = 1; // seconds after highlight before clearing
+  const STAGGER = 1.5;
+  const ANIM_DURATION = 1;
+  const HIGHLIGHT_FADE_DELAY = 1;
 
   const shuffleArray = (arr) => {
     const newArr = [...arr];
@@ -53,6 +55,7 @@ export default function App() {
       .join("\n");
     try {
       await navigator.clipboard.writeText(numbered);
+      alert("Ergebnis wurde in die Zwischenablage kopiert!");
     } catch (err) {
       console.error("Kopieren fehlgeschlagen:", err);
     }
@@ -69,21 +72,40 @@ export default function App() {
         padding: "1rem",
       }}
     >
-      <h1>List Randomizer</h1>
-      <textarea
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        rows={6}
-        style={{
-          display: "block",
-          width: "40%",
-          margin: "0 auto 1rem",
-          padding: "0.5rem",
-          fontSize: "1rem",
-          borderRadius: "5px",
-        }}
-      />
-      <br />
+      {/* Title + Eye Icon */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <h1 style={{ margin: "0.5rem 0 1rem" }}>List Randomizer</h1>
+        <button
+          onClick={() => setShowInput((prev) => !prev)}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+          }}
+          title={showInput ? "Eingabe ausblenden" : "Eingabe einblenden"}
+        >
+          {showInput ? <EyeOff size={24} /> : <Eye size={24} />}
+        </button>
+      </div>
+
+      {/* Textarea */}
+      {showInput && (
+        <textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          rows={6}
+          style={{
+            display: "block",
+            width: "40%",
+            margin: "1rem auto",
+            padding: "0.5rem",
+            fontSize: "1rem",
+            borderRadius: "5px",
+          }}
+        />
+      )}
+
+      {/* Buttons */}
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
         <button
           onClick={startRandomizer}
@@ -98,13 +120,13 @@ export default function App() {
             cursor: "pointer",
           }}
         >
-          Liste Mischen
+          Liste Erzeugen
         </button>
         <button
           onClick={copyResult}
           style={{
             padding: "0.5rem 1rem",
-            backgroundColor: "#ff7f50",
+            backgroundColor: "#007bff",
             color: "white",
             fontSize: "1rem",
             border: "none",
@@ -117,6 +139,7 @@ export default function App() {
         </button>
       </div>
 
+      {/* Shuffled List */}
       <ul style={{ listStyle: "none", padding: 0 }}>
         {shuffled.map((item, i) => {
           const isHighlighted = highlightIndex === i;
