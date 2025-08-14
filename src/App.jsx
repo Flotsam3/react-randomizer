@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "motion/react";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -9,10 +9,54 @@ export default function App() {
   const [highlighted, setHighlighted] = useState([]);
   const [showInput, setShowInput] = useState(true);
 
+  const fileInputRef = useRef(null);
+
   const STAGGER = 1.5;
   const ANIM_DURATION = 1;
   const HIGHLIGHT_OVERLAP = 0.4; // seconds of overlap
-  
+
+  const parseTextToLines = (text) => {
+    // Normalize CRLF/CR/LF to LF
+    const raw = text.replace(/\r\n?/g, "\n");
+    let lines = raw.split("\n");
+
+    // If there are no line breaks but commas, treat as CSV
+    if (lines.length === 1 && raw.includes(",")) {
+      lines = raw.split(",");
+    }
+
+    return lines.map((s) => s.trim()).filter(Boolean);
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Optional: basic size guard (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Die Datei ist größer als 5MB.");
+      e.target.value = "";
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      const lines = parseTextToLines(text);
+      if (!lines.length) {
+        alert("Keine Einträge in der Datei gefunden.");
+        return;
+      }
+      setInput(lines.join("\n"));
+      setShowInput(true); // Ensure textarea is visible after import
+    } catch (err) {
+      console.error("Datei lesen fehlgeschlagen:", err);
+      alert("Datei lesen fehlgeschlagen.");
+    } finally {
+      // Allow selecting the same file again later if needed
+      e.target.value = "";
+    }
+  };
+
   const shuffleArray = (arr) => {
     const newArr = [...arr];
     for (let i = newArr.length - 1; i > 0; i--) {
@@ -104,6 +148,15 @@ export default function App() {
         />
       )}
 
+      {/* Hidden file input for imports */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".txt,.csv,text/plain,text/csv"
+        onChange={handleFileChange}
+        style={{ display: "none" }}
+      />
+
       {/* Buttons */}
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
         <button
@@ -136,6 +189,21 @@ export default function App() {
         >
           Ergebnis kopieren
         </button>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          style={{
+            padding: "0.5rem 1rem",
+            backgroundColor: "#6c757d",
+            color: "white",
+            fontSize: "1rem",
+            border: "none",
+            outline: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          Aus Datei importieren
+        </button>
       </div>
 
       {/* Shuffled List */}
@@ -163,9 +231,6 @@ export default function App() {
                 padding: "0.5rem",
                 borderRadius: "8px",
                 transition: "background-color 0.5s ease, color 0.5s ease",
-                // boxShadow: isHighlighted
-                //   ? "0 0 10px rgba(255,127,80,0.8)"
-                //   : "none",
               }}
             >
               {i + 1}. {item}
