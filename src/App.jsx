@@ -10,7 +10,7 @@ import { parseTextToLines } from "./utils/parse";
 import { DEFAULT_STAGGER, DEFAULT_ANIM_DURATION, HIGHLIGHT_OVERLAP } from "./constants";
 
 export default function App() {
-  const [input, setInput] = useState("Apple\nBanana\nCherry\nDate\nElderberry");
+  const [input, setInput] = useState("");
   const [shuffled, setShuffled] = useState([]);
   const [runId, setRunId] = useState(0);
   const [showInput, setShowInput] = useState(true);
